@@ -1,130 +1,80 @@
 // ============================================================
-// 01 · Business — what Barakah Commodities actually trades.
-//
-// Three panels over one shared 3D display. Hovering or focusing a
-// panel glides the display to that good, which keeps the section
-// reading as a single composition instead of three cards.
+// BusinessSection — what is traded: three lots, three fields of colour,
+// one picture of each.
 // ============================================================
 
-import { Suspense, lazy, useCallback, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import Stage from '../../three/Stage';
-import {
-  useDeviceTier,
-  usePointerRef,
-  useReducedMotion,
-} from '../../hooks';
-import { BUSINESS, COMMODITIES } from '../../content';
-import { EASE, VIEWPORT, maskUp, riseIn, stagger } from '../../utils/motion';
+import { useEffect, useRef } from 'react';
+import { BUSINESS, COMMODITIES, type Commodity } from '../../content';
+import { revealLines } from '../../utils/motion';
 import './BusinessSection.css';
 
-const CommodityDisplayScene = lazy(
-  () => import('../../three/scenes/CommodityDisplayScene')
-);
+/** Each lot sits on the field its goods read best against. */
+const LOT_ART: Record<Commodity['id'], { field: string; src: string; width: number; height: number; alt: string }> = {
+  spices: {
+    field: 'cardamom',
+    src: '/images/lot-spices.webp',
+    width: 1681,
+    height: 738,
+    alt: 'A jute sack of turmeric stencilled Barakah Commodities, a brass dish of black pepper, dried chillies, cardamom, star anise and cinnamon',
+  },
+  'dry-fruits': {
+    field: 'ink',
+    src: '/images/lot-dry-fruits.webp',
+    width: 1757,
+    height: 738,
+    alt: 'A brass dish of almonds with dates, pistachios and loose almonds beside it',
+  },
+  gold: {
+    field: 'chilli',
+    src: '/images/lot-gold.webp',
+    width: 1567,
+    height: 519,
+    alt: 'A stepped pyramid of gold bars stamped 999.9 fine gold, with two more bars laid out in front',
+  },
+};
 
 export default function BusinessSection() {
-  const reducedMotion = useReducedMotion();
-  const tier = useDeviceTier();
-  const pointerRef = usePointerRef(!reducedMotion);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
-  // The scene reads the active index from a ref, so moving between
-  // panels never re-renders the canvas tree.
-  const activeRef = useRef(0);
-  const [active, setActive] = useState(0);
-
-  const select = useCallback((index: number) => {
-    activeRef.current = index;
-    setActive(index);
+  useEffect(() => {
+    if (!titleRef.current) return;
+    return revealLines(titleRef.current);
   }, []);
 
   return (
-    <section className="section business" id="business" aria-labelledby="business-title">
-      <div className="shell">
-        <motion.div
-          className="s-head business__head"
-          variants={stagger(0.1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={VIEWPORT}
-        >
-          <motion.p className="eyebrow" variants={riseIn}>
-            {BUSINESS.eyebrow}
-          </motion.p>
-          <h2 className="s-head__title" id="business-title">
-            <span className="reveal-mask">
-              <motion.span variants={maskUp}>{BUSINESS.title}</motion.span>
-            </span>
+    <section id="business" aria-labelledby="business-title">
+      <header className="business__intro section field field--bone" data-nav="bone">
+        <div className="shell business__head">
+          <h2 className="head" id="business-title" ref={titleRef}>
+            {BUSINESS.title}
           </h2>
-          <motion.p className="lede" variants={riseIn}>
-            {BUSINESS.lede}
-          </motion.p>
-        </motion.div>
-      </div>
-
-      {/* One display band, with the three panels reading beneath it. */}
-      <div className="business__composition">
-        <div className="business__display">
-          <Stage
-            className="business__stage"
-            label="Spices, dry fruits and physical gold displayed on stone plinths"
-            camera={{ position: [-2.35, 1.05, 3.4], fov: 34, near: 0.1, far: 50 }}
-            fallback={<div className="business__stage-fallback" />}
-          >
-            <Suspense fallback={null}>
-              <CommodityDisplayScene
-                activeRef={activeRef}
-                pointerRef={pointerRef}
-                tier={tier}
-                reducedMotion={reducedMotion}
-              />
-            </Suspense>
-          </Stage>
-
-          {/* Names the good currently in the display, for anyone not hovering. */}
-          <p className="business__display-caption" aria-hidden="true">
-            {COMMODITIES[active].name}
-          </p>
+          <p className="lead">{BUSINESS.lede}</p>
         </div>
+      </header>
 
-        <div className="business__panels shell" role="list">
-          {COMMODITIES.map((item, i) => (
-            <motion.article
-              key={item.id}
-              role="listitem"
-              className={`business__panel ${active === i ? 'is-active' : ''}`}
-              onMouseEnter={() => select(i)}
-              onFocus={() => select(i)}
-              tabIndex={0}
-              aria-current={active === i}
-              initial={reducedMotion ? undefined : { opacity: 0, y: 30 }}
-              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={VIEWPORT}
-              transition={{ duration: 0.7, ease: EASE, delay: i * 0.1 }}
-            >
-              <span className="index-num business__panel-index">{item.index}</span>
-
-              <h3 className="business__panel-name">{item.name}</h3>
-              <p className="business__panel-summary">{item.summary}</p>
-
-              <div className="business__panel-body">
-                <p className="business__panel-detail">{item.detail}</p>
-                <p className="business__panel-note">{item.note}</p>
+      {COMMODITIES.map((c) => {
+        const art = LOT_ART[c.id];
+        return (
+          <article key={c.id} className={`lot field field--${art.field}`} data-nav={art.field}>
+            <div className="shell lot__grid">
+              <div className="lot__copy">
+                <h3 className="display lot__name">{c.name}</h3>
+                <p className="lot__detail">{c.detail}</p>
+                <p className="lot__note">{c.note}</p>
               </div>
-
-              <span className="business__panel-explore link-quiet" aria-hidden="true">
-                Explore
-                <svg viewBox="0 0 16 16" width="13" height="13" fill="none">
-                  <path
-                    d="M2 8h11M9 4l4 4-4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                  />
-                </svg>
-              </span>
-            </motion.article>
-          ))}
-        </div>
-      </div>
+              <img
+                className="lot__art"
+                src={art.src}
+                width={art.width}
+                height={art.height}
+                alt={art.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </article>
+        );
+      })}
     </section>
   );
 }

@@ -1,234 +1,69 @@
-/* ============================================================
-   01 · Business
-   ============================================================ */
-
-.business {
-  background: var(--bg-alt);
-  overflow: hidden;
+.business__intro {
+  padding-bottom: clamp(2rem, 4vw, 3rem);
 }
 
 .business__head {
-  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
-}
-
-/* ---------- Composition: display band, then panels ---------- */
-.business__composition {
-  position: relative;
-}
-
-/* The display is its own band. Keeping the 3D out from behind the copy is
-   what makes the section legible — the earlier overlay fought the text. */
-.business__display {
-  position: relative;
-  height: clamp(20rem, 34vw, 27rem);
-  background:
-    radial-gradient(90% 120% at 50% 108%, rgba(201, 163, 78, 0.16), transparent 62%),
-    linear-gradient(180deg, var(--emerald-deep) 0%, var(--forest) 100%);
-  overflow: hidden;
-}
-
-.business__stage {
-  position: absolute;
-  inset: 0;
-  /* Fade the plinths into the band rather than cutting them at its edges. */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    #000 12%,
-    #000 88%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    #000 12%,
-    #000 88%,
-    transparent 100%
-  );
-}
-
-.business__stage-fallback {
-  position: absolute;
-  inset: 0;
-}
-
-.business__display-caption {
-  position: absolute;
-  left: var(--gutter);
-  bottom: var(--s5);
-  font-family: var(--serif);
-  font-size: var(--body-sm);
-  letter-spacing: var(--track-widest);
-  text-transform: uppercase;
-  color: var(--gold);
-  pointer-events: none;
-}
-
-/* ---------- Panels ---------- */
-.business__panels {
-  position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border-bottom: 1px solid var(--rule);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 5rem);
+  align-items: end;
 }
 
-.business__panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: var(--s7) clamp(1rem, 2vw, 2rem) var(--s6);
-  min-height: clamp(19rem, 26vw, 23rem);
-  cursor: pointer;
-  transition: background-color var(--t-slow) var(--ease);
-  outline-offset: -3px;
+.business__head .head {
+  max-width: 14ch;
 }
 
-/* Hairline dividers between panels, not around them. */
-.business__panel + .business__panel {
-  border-left: 1px solid var(--rule);
+.business__head .lead {
+  max-width: 34ch;
+  padding-bottom: 0.4rem;
 }
 
-.business__panel.is-active {
-  background: linear-gradient(
-    180deg,
-    rgba(201, 163, 78, 0.09) 0%,
-    rgba(201, 163, 78, 0) 68%
-  );
+/* A lot: its name and what it is on the left, a picture of it on the right. */
+.lot {
+  padding-block: clamp(2rem, 4.5vw, 4rem);
 }
 
-/* Gold marker that grows along the top rule of the active panel. */
-.business__panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+.lot__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.lot__name {
+  font-size: clamp(3.2rem, 0.6rem + 6vw, 7.2rem);
+}
+
+.lot__detail {
+  margin-top: clamp(0.9rem, 1.6vw, 1.4rem);
+  font-size: var(--step-lead);
+  line-height: 1.34;
+  max-width: 30ch;
+}
+
+.lot__note {
+  margin-top: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.lot__art {
   width: 100%;
-  height: 2px;
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--t-slow) var(--ease);
+  height: auto;
 }
 
-.business__panel.is-active::before {
-  transform: scaleX(1);
-}
-
-.business__panel-index {
-  display: block;
-  margin-bottom: var(--s5);
-}
-
-.business__panel-name {
-  font-family: var(--serif);
-  font-size: var(--display-3);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: var(--track-tight);
-  color: var(--emerald);
-  margin-bottom: var(--s2);
-}
-
-.business__panel-summary {
-  font-size: var(--body-sm);
-  letter-spacing: var(--track-wide);
-  text-transform: uppercase;
-  color: var(--brass);
-}
-
-/* Detail is quieter until the panel is chosen, but never unreadable. */
-.business__panel-body {
-  margin-top: auto;
-  padding-top: var(--s6);
-  opacity: 0.72;
-  transition: opacity var(--t-slow) var(--ease);
-}
-
-.business__panel.is-active .business__panel-body {
-  opacity: 1;
-}
-
-.business__panel-detail {
-  font-size: var(--body);
-  line-height: 1.62;
-  color: var(--text-2);
-  margin-bottom: var(--s3);
-}
-
-.business__panel-note {
-  font-size: var(--micro);
-  letter-spacing: var(--track-wide);
-  text-transform: uppercase;
-  color: var(--text-3);
-  padding-top: var(--s3);
-  border-top: 1px solid var(--rule);
-}
-
-.business__panel-explore {
-  margin-top: var(--s5);
-  color: var(--emerald);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity var(--t) var(--ease), transform var(--t) var(--ease);
-}
-
-.business__panel.is-active .business__panel-explore {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.business__panel.is-active .business__panel-explore::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-/* ---------- Tablet ---------- */
-@media (max-width: 1023px) {
-  .business__panel {
-    min-height: 18rem;
-    padding: var(--s6) var(--s4) var(--s5);
-  }
-
-  .business__panel-body {
-    opacity: 1;
-  }
-}
-
-/* ---------- Mobile ---------- */
-@media (max-width: 767px) {
-  .business__display {
-    height: 40svh;
-  }
-
-  .business__panels {
+@media (max-width: 899px) {
+  .business__head,
+  .lot__grid {
     grid-template-columns: 1fr;
-    border-bottom: 0;
   }
 
-  .business__panel {
-    min-height: auto;
-    padding: var(--s5) 0;
+  .lot__name {
+    font-size: clamp(3.2rem, 15vw, 5.4rem);
   }
 
-  .business__panel + .business__panel {
-    border-left: 0;
-    border-top: 1px solid var(--rule);
-  }
-
-  .business__panel::before {
-    display: none;
-  }
-
-  .business__panel.is-active {
-    background: none;
-  }
-
-  .business__panel-body {
-    margin-top: var(--s4);
-    padding-top: 0;
-  }
-
-  .business__panel-explore {
-    display: none;
+  .lot__detail {
+    font-size: 1.0625rem;
+    max-width: 34ch;
   }
 }

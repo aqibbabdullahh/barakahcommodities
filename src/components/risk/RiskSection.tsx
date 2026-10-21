@@ -1,101 +1,66 @@
 // ============================================================
-// 06 · Risk — stated plainly, neither hidden nor dramatised.
+// RiskSection — the brass balance, and the plain list of what can go
+// wrong. Gold on one pan, iron on the other: it does not promise to
+// stay level.
 // ============================================================
 
-import { Suspense, lazy } from 'react';
-import { motion } from 'framer-motion';
-import Stage from '../../three/Stage';
+import { useEffect, useRef } from 'react';
 import { RISK, RISK_POINTS, RISK_STATEMENTS } from '../../content';
-import { useDeviceTier, useReducedMotion, useScrollProgressRef } from '../../hooks';
-import { VIEWPORT, maskUp, riseIn, stagger } from '../../utils/motion';
+import { revealLines } from '../../utils/motion';
 import './RiskSection.css';
 
-const BalanceScene = lazy(() => import('../../three/scenes/BalanceScene'));
-
 export default function RiskSection() {
-  const reducedMotion = useReducedMotion();
-  const tier = useDeviceTier();
-  const [sectionRef, progressRef] = useScrollProgressRef<HTMLElement>();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (!titleRef.current) return;
+    return revealLines(titleRef.current);
+  }, []);
 
   return (
     <section
-      className="section section--dark risk"
+      className="risk section field field--ink"
       id="risk"
-      ref={sectionRef}
+      data-nav="ink"
       aria-labelledby="risk-title"
     >
       <div className="shell risk__grid">
         <div className="risk__copy">
-          <motion.div
-            variants={stagger(0.1)}
-            initial="hidden"
-            whileInView="show"
-            viewport={VIEWPORT}
-          >
-            <motion.p className="eyebrow" variants={riseIn}>
-              {RISK.eyebrow}
-            </motion.p>
-            <h2 className="s-head__title" id="risk-title">
-              <span className="reveal-mask">
-                <motion.span variants={maskUp}>{RISK.title}</motion.span>
-              </span>
-            </h2>
-            <motion.p className="lede" variants={riseIn}>
-              {RISK.lede}
-            </motion.p>
-          </motion.div>
+          <h2 className="head" id="risk-title" ref={titleRef}>
+            {RISK.title}
+          </h2>
+          <p className="lead">{RISK.lede}</p>
 
-          <motion.ul
-            className="risk__points"
-            variants={stagger(0.08, 0.1)}
-            initial="hidden"
-            whileInView="show"
-            viewport={VIEWPORT}
-          >
-            {RISK_POINTS.map((point) => (
-              <motion.li key={point.id} className="risk__point" variants={riseIn}>
-                <h3 className="risk__point-label">{point.label}</h3>
-                <p className="risk__point-detail">{point.detail}</p>
-              </motion.li>
+          <ul className="risk__points">
+            {RISK_POINTS.map((p) => (
+              <li key={p.id}>
+                <h3>{p.label}</h3>
+                <p>{p.detail}</p>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
 
-          <motion.ul
-            className="risk__statements"
-            variants={stagger(0.07, 0.15)}
-            initial="hidden"
-            whileInView="show"
-            viewport={VIEWPORT}
-          >
-            {RISK_STATEMENTS.map((statement) => (
-              <motion.li key={statement} variants={riseIn}>
-                {statement}
-              </motion.li>
+          <ul className="risk__statements">
+            {RISK_STATEMENTS.map((s) => (
+              <li key={s}>{s}</li>
             ))}
-          </motion.ul>
+          </ul>
         </div>
 
-        <div className="risk__visual">
-          <Stage
-            className="risk__stage"
-            label="A brass balance with profit on one pan and risk on the other"
-            camera={{ position: [0, 1.5, 5.4], fov: 34, near: 0.1, far: 40 }}
-            fallback={<div className="risk__stage-fallback" />}
-          >
-            <Suspense fallback={null}>
-              <BalanceScene
-                progressRef={progressRef}
-                tier={tier}
-                reducedMotion={reducedMotion}
-              />
-            </Suspense>
-          </Stage>
-
-          <div className="risk__pans" aria-hidden="true">
-            <span className="risk__pan-label risk__pan-label--profit">Profit</span>
-            <span className="risk__pan-label risk__pan-label--risk">Risk</span>
-          </div>
-        </div>
+        <figure className="risk__figure">
+          <img
+            src="/images/balance.webp"
+            width="1684"
+            height="971"
+            alt="A brass balance with gold bars on one pan and cast-iron weights on the other, the beam tipped to one side"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>
+            Gold is the {RISK.pans.gold.toLowerCase()}. Iron is the {RISK.pans.iron.toLowerCase()}. The beam
+            swings both ways.
+          </figcaption>
+        </figure>
       </div>
     </section>
   );
